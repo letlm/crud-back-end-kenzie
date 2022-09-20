@@ -18,20 +18,36 @@ import createContactSchema from "../schemas/contact.schema";
 const routes = Router();
 
 export const client = () => {
-  routes.post("", schemaValidation(createClientSchema), createClientController);
+  routes.post(
+    "",
+    schemaValidation(createClientSchema),
+    verifyEmailOrPhoneAvailabilityMiddleware,
+    createClientController
+  );
   routes.get("", verifyAuthTokenMiddleware, listClientsController);
-  routes.get("/:id", verifyAuthTokenMiddleware, listOneClientController);
+  routes.get(
+    "/:id",
+    verifyAuthTokenMiddleware,
+
+    listOneClientController
+  );
   routes.patch(
     "/:id",
     verifyAuthTokenMiddleware,
     verifyClientOwnerMiddleware,
     updateClientController
   );
-  routes.delete("/:id", verifyAuthTokenMiddleware, deleteClientController);
+  routes.delete(
+    "/:id",
+    verifyAuthTokenMiddleware,
+    verifyClientOwnerMiddleware,
+    deleteClientController
+  );
   routes.post(
     "/contact",
     schemaValidation(createContactSchema),
     verifyAuthTokenMiddleware,
+    verifyClientOwnerMiddleware,
     verifyEmailOrPhoneAvailabilityMiddleware,
     createContactClientController
   );
@@ -43,11 +59,14 @@ export const client = () => {
   routes.patch(
     "/:id/contact/:idContact",
     verifyAuthTokenMiddleware,
+    verifyClientOwnerMiddleware,
+    verifyEmailOrPhoneAvailabilityMiddleware,
     updateContactClientController
   );
   routes.delete(
     "/:id/contact/:idContact",
     verifyAuthTokenMiddleware,
+    verifyClientOwnerMiddleware,
     deleteContactClientController
   );
 
