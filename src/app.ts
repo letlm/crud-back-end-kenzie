@@ -8,8 +8,6 @@ const app = express();
 app.use(express.json());
 appRoutes(app);
 
-app.listen(process.env.PORT || 5000);
-
 app.use(handleErrorMiddleware);
 
 export default app;
