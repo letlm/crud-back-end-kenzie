@@ -8,19 +8,48 @@ import createContactClientController from "../controllers/contact_client/createC
 import deleteContactClientController from "../controllers/contact_client/deleteContactClient.controller";
 import listContactClientController from "../controllers/contact_client/listContactClientService";
 import updateContactClientController from "../controllers/contact_client/updateContactClient.controller";
+import schemaValidation from "../middlewares/schemaValidation";
+import verifyAuthTokenMiddleware from "../middlewares/verifyAuthToken.middleware";
+import verifyClientOwnerMiddleware from "../middlewares/verifyClientOwner.middleware";
+import verifyEmailOrPhoneAvailabilityMiddleware from "../middlewares/verifyEmailOrPhoneAvailability.middleware";
+import createClientSchema from "../schemas/client.schema";
+import createContactSchema from "../schemas/contact.schema";
 
 const routes = Router();
 
 export const client = () => {
-  routes.post("", createClientController);
-  routes.get("", listClientsController);
-  routes.get("/:id", listOneClientController);
-  routes.patch("/:id", updateClientController);
-  routes.delete("/:id", deleteClientController);
-  routes.post("/contact", createContactClientController);
-  routes.get("/:id/contact", listContactClientController);
-  routes.patch("/:id/contact/:idContact", updateContactClientController);
-  routes.delete("/:id/contact/:idContact", deleteContactClientController);
+  routes.post("", schemaValidation(createClientSchema), createClientController);
+  routes.get("", verifyAuthTokenMiddleware, listClientsController);
+  routes.get("/:id", verifyAuthTokenMiddleware, listOneClientController);
+  routes.patch(
+    "/:id",
+    verifyAuthTokenMiddleware,
+    verifyClientOwnerMiddleware,
+    updateClientController
+  );
+  routes.delete("/:id", verifyAuthTokenMiddleware, deleteClientController);
+  routes.post(
+    "/contact",
+    schemaValidation(createContactSchema),
+    verifyAuthTokenMiddleware,
+    verifyEmailOrPhoneAvailabilityMiddleware,
+    createContactClientController
+  );
+  routes.get(
+    "/:id/contact",
+    verifyAuthTokenMiddleware,
+    listContactClientController
+  );
+  routes.patch(
+    "/:id/contact/:idContact",
+    verifyAuthTokenMiddleware,
+    updateContactClientController
+  );
+  routes.delete(
+    "/:id/contact/:idContact",
+    verifyAuthTokenMiddleware,
+    deleteContactClientController
+  );
 
   return routes;
 };
